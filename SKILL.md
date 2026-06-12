@@ -2,6 +2,7 @@
 name: session-cleaner
 description: "Clean Hermes session DB: delete short conversations, generate missing titles."
 version: 1.1.0
+installed_from: https://git.softmediadesign.com/git_alhan/hermes-session-cleaner/raw/branch/main/SKILL.md
 ---
 
 # Session Cleaner
