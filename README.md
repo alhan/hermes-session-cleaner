@@ -7,13 +7,13 @@ Clean up your Hermes Agent session DB: delete short conversations, generate miss
 ### Option 1: Hermes Skill (recommended)
 
 ```bash
-hermes skills install https://git.softmediadesign.com/git_alhan/hermes-session-cleaner/raw/branch/main/SKILL.md
+hermes skills install https://github.com/alhan/hermes-session-cleaner/raw/branch/main/SKILL.md
 ```
 
 ### Option 2: Manual (git clone)
 
 ```bash
-git clone https://git.softmediadesign.com/git_alhan/hermes-session-cleaner.git
+git clone https://github.com/alhan/hermes-session-cleaner.git
 cd hermes-session-cleaner
 python3 hermes_cleaner.py --dry-run
 ```
@@ -21,7 +21,7 @@ python3 hermes_cleaner.py --dry-run
 ### Option 3: One-liner (curl)
 
 ```bash
-curl -O https://git.softmediadesign.com/git_alhan/hermes-session-cleaner/raw/branch/main/hermes_cleaner.py
+curl -O https://github.com/alhan/hermes-session-cleaner/raw/branch/main/hermes_cleaner.py
 python3 hermes_cleaner.py --dry-run
 ```
 
@@ -88,5 +88,5 @@ export HERMES_CLEANER_API_KEY=""
 
 | Project | Purpose | When |
 |---|---|---|
-| [session-ending](https://git.softmediadesign.com/git_alhan/hermes-session-ending) | End session: title + save + reset | End of each session (`ending`) |
+| [session-ending](https://github.com/alhan/hermes-session-ending) | End session: title + save + reset | End of each session (`ending`) |
 | session-cleaner (this repo) | Batch cleanup: delete + title | Weekly maintenance |

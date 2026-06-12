@@ -2,7 +2,7 @@
 name: session-cleaner
 description: "Clean Hermes session DB: delete short conversations, generate missing titles."
 version: 1.1.0
-installed_from: https://git.softmediadesign.com/git_alhan/hermes-session-cleaner/raw/branch/main/SKILL.md
+installed_from: https://github.com/alhan/hermes-session-cleaner/raw/branch/main/SKILL.md
 ---
 
 # Session Cleaner
@@ -92,4 +92,4 @@ are removed before title generation starts. No titles are wasted on doomed sessi
 ## See Also
 
 - **session-ending** skill — per-session title + save workflow ("ending")
-- Gitea repo: https://git.softmediadesign.com/git_alhan/hermes-session-cleaner
+- Gitea repo: https://github.com/alhan/hermes-session-cleaner
