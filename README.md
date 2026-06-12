@@ -58,19 +58,28 @@ python3 hermes_cleaner.py --no-delete --max-titles 50
 
 1. Tüm session'ları tarar (`~/.hermes/state.db`)
 2. `< N` mesajlı session'ları **siler** (default: 5)
-3. `>= N` mesajlı ama başlıksız session'lara **title üretir**
+3. `>= N` mesajlı ama başlıksız session'lara **title üretir** (DeepSeek v4 Flash)
 
 ## Gereksinimler
 
 - Hermes Agent kurulu olmalı (hermes_state modülü için)
-- Title üretimi için Ollama'da `hermes3:latest` modeli
+- `~/.hermes/.env` dosyasında `DEEPSEEK_API_KEY` tanımlı olmalı
+- Alternatif: env ile local Ollama'ya yönlendirilebilir
 
 ## Yapılandırma (Env Vars)
 
 | Değişken | Varsayılan | Açıklama |
 |---|---|---|
-| `HERMES_CLEANER_MODEL` | `hermes3:latest` | Title üretimi için model |
-| `HERMES_CLEANER_ENDPOINT` | `http://100.83.239.61:11434/v1/chat/completions` | Ollama API adresi |
+| `HERMES_CLEANER_MODEL` | `deepseek-v4-flash` | Title üretimi için model |
+| `HERMES_CLEANER_ENDPOINT` | `https://api.deepseek.com/v1/chat/completions` | API adresi |
+| `HERMES_CLEANER_API_KEY` | `.env` dosyasından `DEEPSEEK_API_KEY` | API anahtarı |
+
+Local Ollama için:
+```bash
+export HERMES_CLEANER_ENDPOINT="http://localhost:11434/v1/chat/completions"
+export HERMES_CLEANER_MODEL="hermes3:latest"
+export HERMES_CLEANER_API_KEY=""
+```
 
 ```bash
 # DeepSeek API ile kullanmak istersen:
