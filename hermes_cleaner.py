@@ -68,19 +68,23 @@ def build_title_prompt(msgs: list[dict]) -> str:
     )
 
 
-def call_llm(prompt: str, endpoint: str, model: str) -> str | None:
+def call_llm(prompt: str, endpoint: str, model: str,
+             api_key: str = "", timeout: int = 60) -> str | None:
     """Call OpenAI-compatible API for title generation."""
     body = json.dumps({
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 80,
+        "max_tokens": 500,  # reasoning models need space for thinking
         "temperature": 0.1,
     }).encode("utf-8")
 
+    headers = {"Content-Type": "application/json"}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+
     try:
-        req = Request(endpoint, data=body,
-                      headers={"Content-Type": "application/json"})
-        with urlopen(req, timeout=60) as resp:
+        req = Request(endpoint, data=body, headers=headers)
+        with urlopen(req, timeout=timeout) as resp:
             data = json.loads(resp.read())
             msg = data["choices"][0]["message"]
             raw = (msg.get("content")
@@ -101,7 +105,8 @@ def call_llm(prompt: str, endpoint: str, model: str) -> str | None:
 
 
 def generate_title_for_session(db: SessionDB, session_id: str,
-                                endpoint: str, model: str) -> str | None:
+                                endpoint: str, model: str,
+                                api_key: str = "") -> str | None:
     """Generate and set a title for a session."""
     msgs = db.get_messages_as_conversation(session_id)
     user_msgs = [m for m in msgs if m.get("role") in ("user", "assistant")]
@@ -109,7 +114,7 @@ def generate_title_for_session(db: SessionDB, session_id: str,
         return None
 
     prompt = build_title_prompt(user_msgs)
-    title = call_llm(prompt, endpoint, model)
+    title = call_llm(prompt, endpoint, model, api_key)
     if title:
         db.set_session_title(session_id, title)
     return title
@@ -139,11 +144,23 @@ def main():
         sys.exit(1)
 
     db = SessionDB(db_path)
+
+    # Default: DeepSeek API (works everywhere, needs DEEPSEEK_API_KEY in .env)
     endpoint = os.environ.get(
         "HERMES_CLEANER_ENDPOINT",
-        "http://100.83.239.61:11434/v1/chat/completions"
+        "https://api.deepseek.com/v1/chat/completions"
     )
-    model = os.environ.get("HERMES_CLEANER_MODEL", "hermes3:latest")
+    model = os.environ.get("HERMES_CLEANER_MODEL", "deepseek-v4-flash")
+
+    # Load API key from .env (DeepSeek) or env override
+    api_key = os.environ.get("HERMES_CLEANER_API_KEY", "")
+    if not api_key:
+        env_path = HERMES_HOME / ".env"
+        if env_path.exists():
+            for line in env_path.read_text().splitlines():
+                if "DEEPSEEK_API_KEY" in line and "=" in line:
+                    api_key = line.split("=", 1)[-1].strip().strip('"').strip("'")
+                    break
 
     # ── Scan ────────────────────────────────────────────────────────────
     sessions = db.list_sessions_rich(limit=500)
@@ -192,7 +209,7 @@ def main():
                 print(f"  [DRY RUN] Would title: {sid[:30]}  msgs={cnt}  src={src}")
                 continue
             print(f"  {sid[:30]}  msgs={cnt}  src={src} ...", end=" ", flush=True)
-            title = generate_title_for_session(db, sid, endpoint, model)
+            title = generate_title_for_session(db, sid, endpoint, model, api_key)
             if title:
                 print(f'→ "{title}"')
                 generated += 1
