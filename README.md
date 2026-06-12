@@ -10,7 +10,15 @@ Hermes Agent session temizlik aracı: kısa konuşmaları sil, başlıksız sess
 hermes skills install https://git.softmediadesign.com/git_alhan/hermes-session-cleaner/raw/branch/main/SKILL.md
 ```
 
-Skill yüklendikten sonra Hermes içinde "temizlik yap" veya "clean sessions" dediğinde otomatik çalışır.
+Skill yüklendikten sonra Hermes içinde tetiklemek için aşağıdaki komutları söylemen yeterli:
+
+| Ne dersin? | Ne olur? |
+|---|---|
+| `temizlik yap` | Önce dry-run gösterir, onayını alır, sonra çalıştırır |
+| `clean sessions` | Aynısı (İngilizce) |
+| `sessionları temizle` | Aynısı |
+
+Hermes agent skill'i otomatik yükler, `--dry-run` ile önizleme yapar, sana sonucu gösterip onay ister, sonra gerçek temizliği yapar.
 
 ### Yöntem 2: Manuel (git clone)
 
