@@ -1,25 +1,16 @@
 # Hermes Session Cleaner
 
-Hermes Agent session temizlik aracı: kısa konuşmaları sil, başlıksız session'lara title üret.
+Clean up your Hermes Agent session DB: delete short conversations, generate missing titles.
 
-## Kurulum
+## Installation
 
-### Yöntem 1: Hermes Skill olarak (önerilen)
+### Option 1: Hermes Skill (recommended)
 
 ```bash
 hermes skills install https://git.softmediadesign.com/git_alhan/hermes-session-cleaner/raw/branch/main/SKILL.md
 ```
 
-Skill yüklendikten sonra Hermes içinde tetiklemek için aşağıdaki komutları söylemen yeterli:
-
-| Ne dersin? | Ne olur? |
-|---|---|
-| `temizlik yap` | Önce dry-run gösterir, onayını alır, sonra çalıştırır |
-| `clean sessions` | Aynısı (İngilizce) |
-
-Hermes agent skill'i otomatik yükler, `--dry-run` ile önizleme yapar, sana sonucu gösterip onay ister, sonra gerçek temizliği yapar.
-
-### Yöntem 2: Manuel (git clone)
+### Option 2: Manual (git clone)
 
 ```bash
 git clone https://git.softmediadesign.com/git_alhan/hermes-session-cleaner.git
@@ -27,74 +18,75 @@ cd hermes-session-cleaner
 python3 hermes_cleaner.py --dry-run
 ```
 
-### Yöntem 3: Tek komut (curl + run)
+### Option 3: One-liner (curl)
 
 ```bash
 curl -O https://git.softmediadesign.com/git_alhan/hermes-session-cleaner/raw/branch/main/hermes_cleaner.py
 python3 hermes_cleaner.py --dry-run
 ```
 
-## Kullanım
+## Usage in Hermes
+
+Once installed as a skill, trigger it by saying one of these inside Hermes:
+
+| Say this | What happens |
+|---|---|
+| `temizlik yap` | Dry-run preview → asks for confirmation → cleans |
+| `clean sessions` | Same (English) |
+
+The agent runs dry-run first, shows results, asks for confirmation, then cleans.
+
+## CLI Usage
 
 ```bash
-# Neler olacağını gör (her zaman önce bunu çalıştır)
-python3 hermes_cleaner.py --dry-run
-
-# Gerçek temizlik
-python3 hermes_cleaner.py
-
-# Sadece 3 mesajdan az olanları sil
-python3 hermes_cleaner.py --min-messages 3
-
-# Sadece silme yap, title üretme
-python3 hermes_cleaner.py --no-title
-
-# Sadece title üret, silme
-python3 hermes_cleaner.py --no-delete --max-titles 50
+python3 hermes_cleaner.py --dry-run              # Preview only (always run first)
+python3 hermes_cleaner.py                        # Full clean
+python3 hermes_cleaner.py --min-messages 3       # Custom threshold
+python3 hermes_cleaner.py --no-title             # Delete only, no titles
+python3 hermes_cleaner.py --no-delete --max-titles 50  # Titles only
 ```
 
-## Nasıl Çalışır
+## How It Works
 
-1. Tüm session'ları tarar (`~/.hermes/state.db`)
-2. `< N` mesajlı session'ları **siler** (default: 5)
-3. `>= N` mesajlı ama başlıksız session'lara **title üretir** (DeepSeek v4 Flash)
+1. Scans all sessions (`~/.hermes/state.db`)
+2. Deletes sessions with fewer than N messages (default: 5)
+3. Generates titles for sessions with >= N messages but no title (DeepSeek v4 Flash)
 
-## Gereksinimler
+## Requirements
 
-- Hermes Agent kurulu olmalı (hermes_state modülü için)
-- `~/.hermes/.env` dosyasında `DEEPSEEK_API_KEY` tanımlı olmalı
-- Alternatif: env ile local Ollama'ya yönlendirilebilir
+- Hermes Agent installed (for `hermes_state` module)
+- `DEEPSEEK_API_KEY` in `~/.hermes/.env`
+- Alternative: point to local Ollama via env vars
 
-## Yapılandırma (Env Vars)
+## Configuration
 
-| Değişken | Varsayılan | Açıklama |
+| Variable | Default | Description |
 |---|---|---|
-| `HERMES_CLEANER_MODEL` | `deepseek-v4-flash` | Title üretimi için model |
-| `HERMES_CLEANER_ENDPOINT` | `https://api.deepseek.com/v1/chat/completions` | API adresi |
-| `HERMES_CLEANER_API_KEY` | `.env` dosyasından `DEEPSEEK_API_KEY` | API anahtarı |
+| `HERMES_CLEANER_MODEL` | `deepseek-v4-flash` | Model for title generation |
+| `HERMES_CLEANER_ENDPOINT` | `https://api.deepseek.com/v1/chat/completions` | API endpoint |
+| `HERMES_CLEANER_API_KEY` | from `.env` (`DEEPSEEK_API_KEY`) | API key |
 
-Local Ollama için:
+### Using local Ollama instead
+
 ```bash
 export HERMES_CLEANER_ENDPOINT="http://localhost:11434/v1/chat/completions"
-export HERMES_CLEANER_MODEL="hermes3:latest"
+export HERMES_CLEANER_MODEL="hermes3:latest"   # or any Ollama model
 export HERMES_CLEANER_API_KEY=""
 ```
 
-## Cron ile Otomatik Çalıştırma
+## Cron (Scheduled Cleanup)
 
 ```bash
-# Hermes içinde:
-/cron "her hafta pazar 03:00'te session temizliği yap"
+# Inside Hermes:
+/cron "every sunday 03:00 run session cleanup"
 
-# Veya manuel cron:
+# Or system cron:
 0 3 * * 0 cd /path/to/hermes-session-cleaner && python3 hermes_cleaner.py
 ```
 
-## Projeler
+## Related Projects
 
-Bu proje `hermes-session-ending` ile birlikte çalışır:
-
-| Proje | Amaç | Ne zaman? |
+| Project | Purpose | When |
 |---|---|---|
-| [session-ending](https://git.softmediadesign.com/git_alhan/hermes-session-ending) | Oturum sonu: title + save + reset | Her oturum sonunda ("ending") |
-| session-cleaner (bu proje) | Toplu temizlik: sil + title | Haftalık bakım |
+| [session-ending](https://git.softmediadesign.com/git_alhan/hermes-session-ending) | End session: title + save + reset | End of each session (`ending`) |
+| session-cleaner (this repo) | Batch cleanup: delete + title | Weekly maintenance |
